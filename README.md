@@ -19,6 +19,7 @@ My Sweet Home (MSH) is a smart home management system that controls IoT devices 
 | **Memento** | `HomeMemento`, `StateManager` | State history and undo |
 | **Observer** | `IDeviceObserver`, `NotificationSystem` | Device failure notifications |
 | **Strategy** | `NotificationStrategy` | Different notification methods |
+| **Chain of Responsibility** | `SecurityHandler`, `DetectionHandler` | Security/detection sequences |
 | **Template Method** | `Device::powerOn()`, `Device::powerOff()` | Device operations |
 | **Facade** | `HomeController` | Simplified system interface |
 
@@ -154,6 +155,13 @@ Device (Abstract Base)
 
 ---
 
+## Security System Sequence
+When motion is detected (and security is active):
+1. **Alarm** triggers immediately
+*(Note: Advanced handlers like Police call and Light flashing have been simplified in this version)*
+
+---
+
 ## High-Level Requirements Mapping
 
 | HLR | Description | Implementation |
@@ -170,6 +178,10 @@ Device (Abstract Base)
 | REQ10 | Configuration copy | `Device::copyConfigurationFrom()`, Prototype pattern |
 | REQ11 | State history | `StateManager`, `HomeMemento` (Memento pattern) |
 | REQ12 | State restore | `StateManager::restorePreviousState()` |
+| REQ13 | Security sequence | `SecuritySystem`, Chain of Responsibility |
+| REQ14 | Detection alarm | `DetectionSystem` |
+| REQ15 | Light blinking | `DetectionBlinkHandler` |
+| REQ16 | Fire station call | `FireStationCallHandler` |
 
 ---
 
