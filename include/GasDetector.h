@@ -1,15 +1,3 @@
-/**
- * @file GasDetector.h
- * @brief Concrete Gas Detector implementation
- * @version 5.0
- * @date 03/12/2025
- * 
- * @authors
- * - 220208041: Detectors & Alarm - Gas Detector implementation
- * 
- * @patterns Factory Method (Product)
- */
-
 #ifndef GASDETECTOR_H
 #define GASDETECTOR_H
 
