@@ -155,7 +155,6 @@ void SecuritySystem::handleMotionDetection()
     std::cout << "[SECURITY] Motion detected by camera!" << std::endl;
     triggerSecuritySequence();
 }
-
 void SecuritySystem::displayStatus() const
 {
     std::cout << "=== Security System Status ===" << std::endl;
