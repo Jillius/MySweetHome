@@ -6,22 +6,28 @@
  *
  * @authors
  * - 220201047: Security System - Chain of Responsibility Manager
+ *
 
  * @patterns Chain of Responsibility, Facade (Subsystem)
  */
 
 #include "SecuritySystem.h"
+#include "AlarmHandler.h"
 #include <iostream>
 
 SecuritySystem::SecuritySystem(Alarm *alarm, std::vector<Light *> *lights)
     : alarm(alarm), lights(lights), isActive(false)
 {
-    // Chain of Responsibility removed in V3.2
-    // Direct association used instead
+
+    // Build the Chain of Responsibility: Alarm Only (Reduced chain)
+    alarmHandler = new AlarmHandler(alarm);
+
+    // Chain ends here for V3.5
 }
 
 SecuritySystem::~SecuritySystem()
 {
+    delete alarmHandler;
 }
 
 void SecuritySystem::activate()
@@ -43,17 +49,13 @@ void SecuritySystem::handleMotionDetection()
 
     std::cout << "[SECURITY] Motion detected! Initiating security sequence..." << std::endl;
 
-    // Direct action
-    if (alarm)
-    {
-        std::cout << "[SECURITY] Triggering Alarm directly..." << std::endl;
-        alarm->ring();
-    }
+    // Start the chain
+    alarmHandler->handleRequest();
 }
 
 void SecuritySystem::displayStatus() const
 {
     std::cout << "--- SECURITY SYSTEM ---" << std::endl;
     std::cout << "  Status: " << (isActive ? "ARMED" : "DISARMED") << std::endl;
-    std::cout << "  Architecture: Direct Call (No Chain)" << std::endl;
+    std::cout << "  Chain: Alarm Only" << std::endl;
 }
