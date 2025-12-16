@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-
 // Forward declarations
 class Alarm;
 class Light;
