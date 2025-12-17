@@ -1,15 +1,3 @@
-/**
- * @file HomeController.h
- * @brief Facade class for managing the smart home system
- * @version 5.0
- * @date 03/12/2025
- * 
- * @authors
- * - 220201013: System Integration - Facade, Main Loop, Module Integration
- * 
- * @patterns Facade
- */
-
 #ifndef HOMECONTROLLER_H
 #define HOMECONTROLLER_H
 
