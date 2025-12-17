@@ -16,6 +16,10 @@ My Sweet Home (MSH) is a smart home management system that controls IoT devices 
 | **Abstract Factory** | `DeviceFactory`, `DetectorFactory` | Creates device families |
 | **Prototype** | `Device::clone()` | Clone devices with configuration |
 | **State** | `ModeState`, `SystemState` | Mode and system states |
+| **Memento** | `HomeMemento`, `StateManager` | State history and undo |
+| **Observer** | `IDeviceObserver`, `NotificationSystem` | Device failure notifications |
+| **Strategy** | `NotificationStrategy` | Different notification methods |
+| **Chain of Responsibility** | `SecurityHandler`, `DetectionHandler` | Security/detection sequences |
 | **Template Method** | `Device::powerOn()`, `Device::powerOff()` | Device operations |
 | **Facade** | `HomeController` | Simplified system interface |
 
@@ -28,6 +32,7 @@ MySweetHome/
 ├── CMakeLists.txt
 ├── include/
 │   ├── Alarm.h
+│   ├── AlarmHandler.h
 │   ├── Camera.h
 │   ├── DetectionSystem.h
 │   ├── Detector.h
@@ -36,69 +41,81 @@ MySweetHome/
 │   ├── GasDetector.h
 │   ├── HomeController.h
 │   ├── Light.h
+│   ├── LightHandler.h
 │   ├── Menu.h
 │   ├── ModeManager.h
 │   ├── NotificationSystem.h
+│   ├── PoliceHandler.h
+│   ├── SecurityHandler.h
 │   ├── SecuritySystem.h
 │   ├── SmokeDetector.h
 │   ├── SoundSystem.h
 │   ├── StateManager.h
 │   ├── Storage.h
-│   └── Television.h
-└── src/
-    ├── main.cpp
-    ├── Alarm.cpp
-    ├── Camera.cpp
-    ├── DetectionSystem.cpp
-    ├── Detector.cpp
-    ├── Device.cpp
-    ├── DeviceFactory.cpp
-    ├── GasDetector.cpp
-    ├── HomeController.cpp
-    ├── Light.cpp
-    ├── Menu.cpp
-    ├── ModeManager.cpp
-    ├── NotificationSystem.cpp
-    ├── SecuritySystem.cpp
-    ├── SmokeDetector.cpp
-    ├── SoundSystem.cpp
-    ├── StateManager.cpp
-    ├── Storage.cpp
-    └── Television.cpp
+│   ├── Television.h
+│   └── nlohmann/
+│       └── json.hpp
+├── src/
+│   ├── Alarm.cpp
+│   ├── AlarmHandler.cpp
+│   ├── Camera.cpp
+│   ├── Detector.cpp
+│   ├── Device.cpp
+│   ├── DeviceFactory.cpp
+│   ├── GasDetector.cpp
+│   ├── HomeController.cpp
+│   ├── Light.cpp
+│   ├── LightHandler.cpp
+│   ├── main.cpp
+│   ├── Menu.cpp
+│   ├── ModeManager.cpp
+│   ├── NotificationSystem.cpp
+│   ├── PoliceHandler.cpp
+│   ├── SecurityHandler.cpp
+│   ├── SecuritySystem.cpp
+│   ├── SmokeDetector.cpp
+│   ├── SoundSystem.cpp
+│   ├── StateManager.cpp
+│   ├── Storage.cpp
+│   └── Television.cpp
+└── tests/
+    ├── CMakeLists.txt
+    └── test_main.cpp
 ```
 
 ---
 
-## Compilation and Running
+## Compilation and Testing
 
 ### Prerequisites
-- CMake (version 3.10 or higher)
-- C++ Compiler (supporting C++98/11)
-- Git
+- CMake 3.10 or higher
+- C++ Compiler supporting C++98 (e.g., g++, clang)
 
 ### Build Instructions
+```bash
+# Create build directory
+mkdir build && cd build
 
-1. **Create a build directory:**
-   ```bash
-   mkdir build
-   ```
+# Configure project
+cmake ..
 
-2. **Configure the project:**
-   ```bash
-   cmake -B build
-   ```
-
-3. **Build the executable:**
-   ```bash
-   cmake --build build
-   ```
+# Build application and tests
+make
+```
 
 ### Running the Application
-
-After a successful build, the executable will be located in the `bin` directory inside your build folder.
-
 ```bash
-./build/bin/msh
+./bin/msh
+```
+
+### Running Tests
+This project uses CTest for unit testing.
+```bash
+# Run all tests
+ctest --output-on-failure
+
+# Alternatively, run the test executable directly
+./tests/unit_tests
 ```
 
 ---
@@ -151,6 +168,22 @@ Device (Abstract Base)
 
 ---
 
+## Security System Sequence
+When motion is detected (and security is active):
+1. **Alarm** triggers (3 seconds)
+2. **Lights** turn on (2 seconds)
+3. **Police** called
+
+---
+
+## Detection System Sequence
+When smoke/gas is detected:
+1. **Alarm** triggers (3 seconds) - *can be interrupted by user*
+2. **Lights** blink on/off (5 times) - *can be interrupted by user*
+3. **Fire Station** called
+
+---
+
 ## High-Level Requirements Mapping
 
 | HLR | Description | Implementation |
@@ -163,9 +196,14 @@ Device (Abstract Base)
 | REQ6 | Power on/off | `Device::powerOn()`, `Device::powerOff()` |
 | REQ7 | Modes | `ModeManager`, `ModeState` classes |
 | REQ8 | Add/remove devices | `HomeController` device management |
+| REQ9 | Failure notifications | `NotificationSystem`, `IDeviceObserver` |
 | REQ10 | Configuration copy | `Device::copyConfigurationFrom()`, Prototype pattern |
 | REQ11 | State history | `StateManager`, `HomeMemento` (Memento pattern) |
 | REQ12 | State restore | `StateManager::restorePreviousState()` |
+| REQ13 | Security sequence | `SecuritySystem`, Chain of Responsibility |
+| REQ14 | Detection alarm | `DetectionSystem` |
+| REQ15 | Light blinking | `DetectionBlinkHandler` |
+| REQ16 | Fire station call | `FireStationCallHandler` |
 
 ---
 

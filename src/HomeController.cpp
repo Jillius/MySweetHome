@@ -1,4 +1,12 @@
-
+/**
+ * @file HomeController.cpp
+ * @brief Implementation of the Facade HomeController
+ * 
+ * @authors
+ * - 220201024: System Integration - Facade, Main Loop, Module Integration
+ * 
+ * @patterns Facade
+ */
 
 #include "HomeController.h"
 #include "Device.h"
@@ -12,6 +20,9 @@
 #include "Menu.h"
 #include "Storage.h"
 #include "ModeManager.h"
+#include "StateManager.h"
+#include "SecuritySystem.h"
+#include "NotificationSystem.h"
 #include "DeviceFactory.h"
 #include <iostream>
 #include <sstream>
@@ -24,15 +35,22 @@ HomeController::HomeController() : isRunning(false) {
     // Initialize managers
     menu = new Menu();
     modeManager = new ModeManager();
-    // StateManager removed in V2.5
+    stateManager = new StateManager();
     
-    // Notification System removed in V2.0
+    // Initialize notification system
+    notificationSystem = new NotificationSystem();
+    
+    // Set alarm observer
+    alarm->setObserver(notificationSystem);
     
     // Initialize default devices
     initializeDefaultDevices();
     
     // Update light pointers for systems
     updateLightPtrs();
+    
+    // Initialize security and detection systems
+    securitySystem = new SecuritySystem(alarm, &lightPtrs);
 }
 
 HomeController::~HomeController() {
@@ -51,6 +69,9 @@ HomeController::~HomeController() {
     // Clean up managers and systems
     delete menu;
     delete modeManager;
+    delete stateManager;
+    delete securitySystem;
+    delete notificationSystem;
     
     // Note: Alarm and Storage are singletons, not deleted here
 }
@@ -66,7 +87,7 @@ void HomeController::initializeDefaultDevices() {
 
 void HomeController::registerDevice(Device* device) {
     if (device) {
-        // Observer setup removed in V2.0
+        device->setObserver(notificationSystem);
         allDevices.push_back(device);
     }
 }
@@ -107,6 +128,17 @@ void HomeController::start() {
     std::cout << "[INIT] Applying default mode (Normal)..." << std::endl;
     modeManager->applyMode(lights, televisions, soundSystems);
     
+    // Apply default state (Normal)
+    std::cout << "[INIT] Applying default state (Normal)..." << std::endl;
+    stateManager->applyState();
+    
+    // Activate security system
+    std::cout << "[INIT] Activating security system..." << std::endl;
+    securitySystem->activate();
+    
+    // Save initial state
+    stateManager->saveState(modeManager->getCurrentModeName(), allDevices);
+    
     std::cout << std::endl;
     std::cout << "[INIT] System initialization complete!" << std::endl;
     std::cout << std::endl;
@@ -141,8 +173,7 @@ void HomeController::run() {
                 handleChangeMode();
                 break;
             case 7:
-                // handleChangeState removed in V2.5
-                menu->displayError("State History feature not available in this version.");
+                handleChangeState();
                 break;
             case 8:
                 handleManual();
@@ -169,6 +200,9 @@ void HomeController::shutdown() {
     std::cout << "      MY SWEET HOME SYSTEM SHUTTING DOWN   " << std::endl;
     std::cout << "============================================" << std::endl;
     
+    // Deactivate systems
+    securitySystem->deactivate();
+    
     // Power off all non-critical devices
     for (size_t i = 0; i < allDevices.size(); ++i) {
         allDevices[i]->powerOff();
@@ -194,7 +228,15 @@ void HomeController::handleGetStatus() {
     // Current state and mode
     std::cout << std::endl;
     std::cout << "--- SYSTEM STATUS ---" << std::endl;
+    stateManager->displayCurrentState();
+    std::cout << std::endl;
     modeManager->displayCurrentMode();
+    
+    // Security and detection
+    std::cout << std::endl;
+    securitySystem->displayStatus();
+    std::cout << std::endl;
+    notificationSystem->displayStatus();
     
     // All devices
     std::cout << std::endl;
@@ -319,11 +361,30 @@ void HomeController::handleChangeMode() {
     modeManager->setMode(choice);
     modeManager->applyMode(lights, televisions, soundSystems);
     
+    // Save state after mode change
+    stateManager->saveState(modeManager->getCurrentModeName(), allDevices);
+    
     storage->logModeChange(oldMode, modeManager->getCurrentModeName());
 }
 
 void HomeController::handleChangeState() {
-    // Removed in V2.5
+    std::string oldState = stateManager->getCurrentStateName();
+    
+    menu->displayStateSubmenu();
+    char choice = menu->getCharChoice();
+    
+    if (choice == 'Q' || choice == 'q') {
+        return;
+    }
+    
+    stateManager->setState(choice);
+    
+    // Save state after state change (except for 'previous' which restores)
+    if (choice != 'P' && choice != 'p') {
+        stateManager->saveState(modeManager->getCurrentModeName(), allDevices);
+    }
+    
+    storage->logStateChange(oldState, stateManager->getCurrentStateName());
 }
 
 void HomeController::handleManual() {
@@ -661,7 +722,7 @@ void HomeController::simulateMotionDetection() {
         Camera* cam = dynamic_cast<Camera*>(cameras[0]);
         if (cam) {
             cam->detectMotion();
-            // Security system removed in V3.0
+            securitySystem->handleMotionDetection();
         }
     }
 }

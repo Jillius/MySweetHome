@@ -1,11 +1,9 @@
 /**
  * @file HomeController.h
  * @brief Facade class for managing the smart home system
- * @version 5.0
- * @date 03/12/2025
  * 
  * @authors
- * - 220201013: System Integration - Facade, Main Loop, Module Integration
+ * - 220201024: System Integration - Facade, Main Loop, Module Integration
  * 
  * @patterns Facade
  */
@@ -29,6 +27,9 @@ class Alarm;
 class Menu;
 class Storage;
 class ModeManager;
+class StateManager;
+class SecuritySystem;
+class NotificationSystem;
 class DeviceFactory;
 class DetectorFactory;
 
@@ -44,7 +45,7 @@ private:
     std::vector<Device*> soundSystems;
     std::vector<Device*> allDevices;
     
-    // Light pointers for subsystems (if needed later)
+    // Light pointers for security/detection systems
     std::vector<Light*> lightPtrs;
     
     // Singleton instances
@@ -54,6 +55,11 @@ private:
     // Managers
     Menu* menu;
     ModeManager* modeManager;
+    StateManager* stateManager;
+    
+    // Systems
+    SecuritySystem* securitySystem;
+    NotificationSystem* notificationSystem;
     
     // System state
     bool isRunning;
