@@ -1,8 +1,6 @@
 /**
  * @file Menu.cpp
  * @brief Implementation of the Menu UI
- * @version 5.0
- * @date 03/12/2025
  * 
  * @authors
  * - 220201036: Storage & Menu - Menu UI implementation
