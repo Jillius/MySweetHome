@@ -1,13 +1,3 @@
-/**
- * @file HomeController.h
- * @brief Facade class for managing the smart home system
- * 
- * @authors
- * - 220201013: System Integration - Facade, Main Loop, Module Integration
- * 
- * @patterns Facade
- */
-
 #ifndef HOMECONTROLLER_H
 #define HOMECONTROLLER_H
 
